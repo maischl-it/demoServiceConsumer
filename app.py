@@ -16,5 +16,10 @@ def home():
     return "Response: "+content
 
 
+@app.route("/metrics", methods=['POST', 'GET'])
+def metrics():
+    return '{"value":8}'
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3001)
