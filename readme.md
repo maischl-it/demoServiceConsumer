@@ -1,0 +1,1 @@
+helm install kedacore/keda keda

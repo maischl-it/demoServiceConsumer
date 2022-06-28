@@ -8,13 +8,13 @@ app = Flask(__name__)
 
 metricsValue = 0
 
+
 @app.route("/", methods=['POST', 'GET'])
 def home():
     global metricsValue
     metricsValue += 1
 
     url = os.environ.get("url", "http://provider.default.svc.cluster.local")
-    # response = requests.get("http://127.0.0.1:3000")
     response = requests.get(url)
     content = str(response.content)
 
@@ -34,6 +34,7 @@ def decrement_metrics():
             metricsValue -= 1
 
         time.sleep(10)
+
 
 if __name__ == '__main__':
     threading.Thread(target=decrement_metrics).start()
