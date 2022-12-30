@@ -5,12 +5,14 @@
 replicaCount: 1
 
 image:
-  repository: 474271209542.dkr.ecr.eu-central-1.amazonaws.com/consumer
+  repository: ivfpacr.azurecr.io/demoserviceconsumer
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
-imagePullSecrets: []
+imagePullSecrets:
+  - name: acr
+
 nameOverride: ""
 fullnameOverride: ""
 
