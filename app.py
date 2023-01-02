@@ -1,56 +1,38 @@
-import os
-import threading
-import time
+import flask
 import requests
-from flask import Flask
 
 from opentelemetry import trace
+from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import ConsoleSpanExporter,BatchSpanProcessor
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
-app=None
+trace.set_tracer_provider(TracerProvider())
 
-metricsValue = 0
+jaeger_exporter=JaegerExporter(
+        agent_host_name="172.17.0.3",
+        agent_port=6831
+)
 
-def decrement_metrics():
-    global metricsValue
-
-    while True:
-        if (metricsValue > 0):
-            metricsValue -= 1
-
-        time.sleep(10)
-
-if __name__ == '__main__':
-    threading.Thread(target=decrement_metrics).start()
-
-    trace.set_tracer_provider(TracerProvider())
-    trace.get_tracer_provider().add_span_processor(
-        BatchSpanProcessor(ConsoleSpanExporter())
-    )
-
-    tracer=trace.get_tracer(__name__)
-
-    app = Flask(__name__)
-
-    FlaskInstrumentor().instrument_app(app)
-
-    app.run(host='0.0.0.0', port=3001)
+trace.get_tracer_provider().add_span_processor(
+    BatchSpanProcessor(jaeger_exporter)
+)
 
 
-@app.route("/", methods=['POST', 'GET'])
-def home():
-    global metricsValue
-    metricsValue += 1
-
-    url = os.environ.get("url", "http://172.17.0.4:3000/")
-    response = requests.get(url)
-    content = str(response.content)
-
-    return "Response: "+content
+app = flask.Flask(__name__)
+FlaskInstrumentor().instrument_app(app)
+RequestsInstrumentor().instrument()
 
 
-@app.route("/metrics", methods=['POST', 'GET'])
-def metrics():
-    return '{"value":' + str(metricsValue) + '}'
+@app.route("/")
+def hello():
+    tracer = trace.get_tracer(__name__)
+    with tracer.start_as_current_span("example-request") as span:
+        span.set_attribute("customAttributeSEM","testsem")
+        requests.get("http://www.example.com")
+        requests.get("https://web.de")
+    return "hello"
+
+
+app.run(debug=True, port=5000)

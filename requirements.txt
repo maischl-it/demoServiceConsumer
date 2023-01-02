@@ -3,4 +3,6 @@ requests
 opentelemetry-api
 opentelemetry-sdk
 opentelemetry-instrumentation-flask
-# opentelemetry-instrumentation-urllib
+opentelemetry-instrumentation-urllib
+opentelemetry-instrumentation-requests
+opentelemetry-exporter-jaeger
