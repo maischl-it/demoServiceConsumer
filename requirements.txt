@@ -4,6 +4,6 @@ opentelemetry-api
 opentelemetry-sdk
 opentelemetry-instrumentation-flask
 opentelemetry-instrumentation-urllib
-opentelemetry-exporter-jaeger
-opentelemetry-instrumentation-wsgi
 opentelemetry-instrumentation-requests
+opentelemetry-exporter-jaeger
+opentelemetry-propagator-b3
