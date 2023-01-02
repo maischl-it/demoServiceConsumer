@@ -7,12 +7,6 @@ from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.propagate import set_global_textmap
-from opentelemetry.propagators.b3 import B3Format
-from opentelemetry.propagators.textmap import TextMapPropagator
-from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
-
-set_global_textmap(B3Format())
 
 tracer=TracerProvider()
 
@@ -37,11 +31,11 @@ RequestsInstrumentor().instrument()
 def hello():
     tracer = trace.get_tracer(__name__)
 
-    with tracer.start_as_current_span("example-request") as span:
-        span.set_attribute("customAttributeSEM","testsem")
+    with tracer.start_as_current_span("spanConsumer") as span:
+        span.set_attribute("application","consumer")
 
         requests.get("http://172.17.0.4:3000")
-    return "hello"
+    return "consumer"
 
 
 app.run(debug=True, port=5000)
