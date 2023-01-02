@@ -7,8 +7,11 @@ from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.instrumentation.wsgi import OpenTelemetryMiddleware
 
-trace.set_tracer_provider(TracerProvider())
+tracer=TracerProvider()
+
+trace.set_tracer_provider(tracer)
 
 jaeger_exporter=JaegerExporter(
         agent_host_name="172.17.0.3",
