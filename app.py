@@ -13,7 +13,7 @@ tracer=TracerProvider()
 trace.set_tracer_provider(tracer)
 
 jaeger_exporter=JaegerExporter(
-        agent_host_name="172.17.0.3",
+        agent_host_name="simplest-agent.default.svc.cluster.local",
         agent_port=6831
 )
 
@@ -34,8 +34,8 @@ def hello():
     with tracer.start_as_current_span("spanConsumer") as span:
         span.set_attribute("application","consumer")
 
-        requests.get("http://172.17.0.4:3000")
+        requests.get("http://provider-demoserviceprovider.demo.svc.cluster.local:3000")
     return "consumer"
 
 
-app.run(debug=True, port=5000)
+app.run(debug=True, host='0.0.0.0', port=5000)
