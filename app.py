@@ -1,5 +1,6 @@
 import flask
 import requests
+import time
 
 from opentelemetry import trace
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
@@ -7,13 +8,15 @@ from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 
-tracer=TracerProvider()
+tracer=TracerProvider(resource=Resource.create({SERVICE_NAME: "DemoConsumer"}))
 
 trace.set_tracer_provider(tracer)
 
 jaeger_exporter=JaegerExporter(
         agent_host_name="simplest-agent.default.svc.cluster.local",
+        # agent_host_name="172.17.0.2",
         agent_port=6831
 )
 
@@ -27,7 +30,7 @@ FlaskInstrumentor().instrument_app(app)
 RequestsInstrumentor().instrument()
 
 
-@app.route("/")
+@app.route("/", methods=['POST', 'GET'])
 def hello():
     tracer = trace.get_tracer(__name__)
 
@@ -35,6 +38,11 @@ def hello():
         span.set_attribute("application","consumer")
 
         requests.get("http://provider-demoserviceprovider.demo.svc.cluster.local:3000")
+        # requests.get("http://172.17.0.4:3000")
+    
+    # time.sleep(3)
+    requests.get("https://maischl-it.de")
+
     return "consumer"
 
 
