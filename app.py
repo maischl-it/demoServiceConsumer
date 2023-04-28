@@ -1,5 +1,6 @@
 import flask
 import requests
+import threading
 import time
 
 from opentelemetry import trace
@@ -9,6 +10,8 @@ from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+
+metricsValue = 0
 
 tracer=TracerProvider(resource=Resource.create({SERVICE_NAME: "DemoConsumer"}))
 
@@ -32,6 +35,9 @@ RequestsInstrumentor().instrument()
 
 @app.route("/", methods=['POST', 'GET'])
 def hello():
+    global metricsValue
+    metricsValue += 1
+
     tracer = trace.get_tracer(__name__)
 
     with tracer.start_as_current_span("spanConsumer") as span:
@@ -46,5 +52,20 @@ def hello():
 
     return "consumer"
 
+@app.route("/metrics", methods=['POST', 'GET'])
+def metrics():
+    return '{"value":' + str(metricsValue) + '}'
 
-app.run(debug=True, host='0.0.0.0', port=5000)
+def decrement_metrics():
+    global metricsValue
+
+    while True:
+        if (metricsValue > 0):
+            metricsValue -= 1
+
+        time.sleep(10)
+
+if __name__ == '__main__':
+    threading.Thread(target=decrement_metrics).start()
+
+    app.run(host='0.0.0.0', port=5000)
