@@ -48,7 +48,7 @@ def hello():
         # requests.get("http://172.17.0.4:3000")
     
     # time.sleep(3)
-    requests.get("https://maischl-it.de")
+    requests.get("https://web.de")
 
     return "consumer"
 
