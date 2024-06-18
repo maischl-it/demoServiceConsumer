@@ -40,17 +40,19 @@ def hello():
 
     tracer = trace.get_tracer(__name__)
 
+    response=""
+
     with tracer.start_as_current_span("spanConsumer") as span:
         span.set_attribute("application","consumer")
 
         # requests.get("https://enaqbph6yivud.x.pipedream.net/")
-        requests.get("http://provider-demoserviceprovider.demo.svc.cluster.local:3000")
+        response=requests.get("http://provider-demoserviceprovider.demo.svc.cluster.local:3000")
         # requests.get("http://172.17.0.4:3000")
     
     # time.sleep(3)
     requests.get("https://web.de")
 
-    return "consumer"
+    return "consumer: "+response.text
 
 @app.route("/metrics", methods=['POST', 'GET'])
 def metrics():
